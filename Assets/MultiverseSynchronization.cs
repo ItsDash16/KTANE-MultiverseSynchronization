@@ -1,6 +1,6 @@
 /* Hi dear curious person. You looking for how I did something?
 Well here's your warning: this code is SO FUCKING BAD AND SCUFFED.
-This code is being hold up to my hopes and dreams, if this actually helps you in your own module,
+This code is being held up by my hopes and dreams, if this actually helps you in your own module,
 count that as a MIRACLE. */
 
 using System;
@@ -284,6 +284,9 @@ public class MultiverseSynchronization : MonoBehaviour {
       SkipAll = false;
       TimestampSeconds = 0;
       TimestampMinutes = 0;
+      AppliedRulesS2 = "";
+      Has1EmptyPortPlate = false;
+      Has2EmptyPortPlate = false;
 
       if (Bomb.GetBatteryCount() == 0)
       {
@@ -406,6 +409,7 @@ public class MultiverseSynchronization : MonoBehaviour {
          TimestampSeconds += 720;
          AppliedRulesS2 += "20, ";
       }
+      
       TimestampMinutes = TimestampSeconds / 60;
       TimestampSeconds = TimestampSeconds % 60;
 
@@ -454,9 +458,9 @@ public class MultiverseSynchronization : MonoBehaviour {
          {
             if (module.Length > 0 && char.ToUpper(module[0]) >= 'A' && char.ToUpper(module[0]) <= 'M' && module != "Multiverse Synchronization")
             {
-               ValidStartingAtoM = true;
                Debug.LogFormat("[Multiverse Synchronization #{0}] Step 3 - Bomb doesn't has a valid module, but has module(s) starting with the first half of the alphabet.", ModuleId);
                CorrectModuleToSolve = "##firstHalf";
+               ValidStartingAtoM = true;
                break;
             }
          }
@@ -464,8 +468,8 @@ public class MultiverseSynchronization : MonoBehaviour {
          {
             CorrectModuleToSolve = "##secondHalf";
             Debug.LogFormat("[Multiverse Synchronization #{0}] Step 3 - Bomb doesn't has a valid module or module(s) starting with the first half of the alphabet. Any module on the second half of the alphabet is correct.", ModuleId);
-            ValidStartingAtoM = true;
          }
+         ValidStartingAtoM = true;
       }
    }
 
@@ -491,39 +495,86 @@ public class MultiverseSynchronization : MonoBehaviour {
    void SyncButtonPress() {
       GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
       AddSecondsButton.AddInteractionPunch();
-      if (Bomb.GetSolvedModuleNames().Count() == CorrectSolveAmount)
+      if (!TimerRunning)
       {
-         if (FormattedCorrectTime == FormattedTime)
+         if (Bomb.GetSolvedModuleNames().Count() == CorrectSolveAmount)
          {
-            StartCoroutine(Countdown());
-            Debug.LogFormat("[Multiverse Synchronization #{0}] Defuser asked to sync multiverse at {1}{2}:{3}{4}, which is correct. Starting countdown...", ModuleId, DozenMinuteTime, MinuteTime, DozenSecondTime, SecondTime);
-            Audio.PlaySoundAtTransform("TimerStart", transform);
-            TimerRunning = true;
-            StopTimer = false;
+            if (FormattedCorrectTime == FormattedTime)
+            {
+               StartCoroutine(Countdown());
+               Debug.LogFormat("[Multiverse Synchronization #{0}] Defuser asked to sync multiverse at {1}{2}:{3}{4}, which is correct. Starting countdown...", ModuleId, DozenMinuteTime, MinuteTime, DozenSecondTime, SecondTime);
+               Audio.PlaySoundAtTransform("TimerStart", transform);
+               TimerRunning = true;
+               StopTimer = false;
+               AllSolvedModules = Bomb.GetSolvedModuleNames();
+            }
+            else
+            {
+               if (!ModuleSolved)
+               {
+                  Strike();
+                  Debug.LogFormat("[Multiverse Synchronization #{0}] Strike! Defuser asked to sync at {1}, expected {2}.", ModuleId, FormattedTime, FormattedCorrectTime);
+               }
+            }
          }
          else
          {
             if (!ModuleSolved)
             {
                Strike();
-               Debug.LogFormat("[Multiverse Synchronization #{0}] Strike! Defuser asked to sync at {1}, expected {2}.", ModuleId, FormattedTime, FormattedCorrectTime);
+               Debug.LogFormat("[Multiverse Synchronization #{0}] Strike! Defuser asked to sync at {1} solves, expected {2}.", ModuleId, Bomb.GetSolvedModuleNames().Count(), CorrectSolveAmount);
             }
-         }
+         } 
       }
-      else
-      {
-         if (!ModuleSolved)
-         {
-            Strike();
-            Debug.LogFormat("[Multiverse Synchronization #{0}] Strike! Defuser asked to sync at {1} solves, expected {2}.", ModuleId, Bomb.GetSolvedModuleNames().Count(), CorrectSolveAmount);
-         }
-      } 
    }
 
    void AddSecondsButtonPress() {
-      if (SecondTime == 9)
+      if (!TimerRunning)
       {
-         SecondTime = 0;
+         if (SecondTime == 9)
+         {
+            SecondTime = 0;
+            if (DozenSecondTime == 5)
+            {
+               DozenSecondTime = 0;
+               if (MinuteTime == 9)
+               {
+                  MinuteTime = 0;
+                  if (DozenMinuteTime == 9)
+                  {
+                     DozenMinuteTime = 0;
+                     MinuteTime = 0;
+                     DozenSecondTime = 0;
+                     SecondTime = 0;
+                  }
+                  else
+                  {
+                     DozenMinuteTime++;
+                  }
+               }
+               else
+               {
+                  MinuteTime++;
+               }
+            }
+            else
+            {
+               DozenSecondTime++;
+            }
+         }
+         else
+         {
+            SecondTime++;
+         }
+         GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
+         AddSecondsButton.AddInteractionPunch();
+         UpdateDisplay();
+      }
+   }
+
+   void AddDozenSecondsButtonPress() {
+      if (!TimerRunning)
+      {
          if (DozenSecondTime == 5)
          {
             DozenSecondTime = 0;
@@ -551,20 +602,15 @@ public class MultiverseSynchronization : MonoBehaviour {
          {
             DozenSecondTime++;
          }
+         GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
+         AddSecondsButton.AddInteractionPunch();
+         UpdateDisplay();
       }
-      else
-      {
-         SecondTime++;
-      }
-      GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
-      AddSecondsButton.AddInteractionPunch();
-      UpdateDisplay();
    }
 
-   void AddDozenSecondsButtonPress() {
-      if (DozenSecondTime == 5)
+   void AddMinutesButtonPress() {
+      if (!TimerRunning)
       {
-         DozenSecondTime = 0;
          if (MinuteTime == 9)
          {
             MinuteTime = 0;
@@ -584,45 +630,59 @@ public class MultiverseSynchronization : MonoBehaviour {
          {
             MinuteTime++;
          }
+         GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
+         AddSecondsButton.AddInteractionPunch();
+         UpdateDisplay();
       }
-      else
-      {
-         DozenSecondTime++;
-      }
-      GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
-      AddSecondsButton.AddInteractionPunch();
-      UpdateDisplay();
-   }
-
-   void AddMinutesButtonPress() {
-      if (MinuteTime == 9)
-      {
-         MinuteTime = 0;
-         if (DozenMinuteTime == 9)
-         {
-            DozenMinuteTime = 0;
-            MinuteTime = 0;
-            DozenSecondTime = 0;
-            SecondTime = 0;
-         }
-         else
-         {
-            DozenMinuteTime++;
-         }
-      }
-      else
-      {
-         MinuteTime++;
-      }
-      GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
-      AddSecondsButton.AddInteractionPunch();
-      UpdateDisplay();
    }
 
    void SubSecondsButtonPress() {
-      if (SecondTime == 0)
+      if (!TimerRunning)
       {
-         SecondTime = 9;
+         if (SecondTime == 0)
+         {
+            SecondTime = 9;
+            if (DozenSecondTime == 0)
+            {
+               DozenSecondTime = 5;
+               if (MinuteTime == 0)
+               {
+                  MinuteTime = 9;
+                  if (DozenMinuteTime == 0)
+                  {
+                     DozenMinuteTime = 9;
+                     MinuteTime = 9;
+                     DozenSecondTime = 5;
+                     SecondTime = 9;
+                  }
+                  else
+                  {
+                     DozenMinuteTime--;
+                  }
+               }
+               else
+               {
+                  MinuteTime--;
+               }
+            }
+            else
+            {
+               DozenSecondTime--;
+            }
+         }
+         else
+         {
+            SecondTime--;
+         }
+         GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
+         AddSecondsButton.AddInteractionPunch();
+         UpdateDisplay();
+      }
+   }
+
+   void SubDozenSecondsButtonPress() {
+      if (!TimerRunning)
+      {
          if (DozenSecondTime == 0)
          {
             DozenSecondTime = 5;
@@ -650,20 +710,15 @@ public class MultiverseSynchronization : MonoBehaviour {
          {
             DozenSecondTime--;
          }
+         GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
+         AddSecondsButton.AddInteractionPunch();
+         UpdateDisplay();
       }
-      else
-      {
-         SecondTime--;
-      }
-      GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
-      AddSecondsButton.AddInteractionPunch();
-      UpdateDisplay();
    }
 
-   void SubDozenSecondsButtonPress() {
-      if (DozenSecondTime == 0)
+   void SubMinutesButtonPress() {
+      if (!TimerRunning)
       {
-         DozenSecondTime = 5;
          if (MinuteTime == 0)
          {
             MinuteTime = 9;
@@ -683,39 +738,10 @@ public class MultiverseSynchronization : MonoBehaviour {
          {
             MinuteTime--;
          }
+         GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
+         AddSecondsButton.AddInteractionPunch();
+         UpdateDisplay();
       }
-      else
-      {
-         DozenSecondTime--;
-      }
-      GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
-      AddSecondsButton.AddInteractionPunch();
-      UpdateDisplay();
-   }
-
-   void SubMinutesButtonPress() {
-      if (MinuteTime == 0)
-      {
-         MinuteTime = 9;
-         if (DozenMinuteTime == 0)
-         {
-            DozenMinuteTime = 9;
-            MinuteTime = 9;
-            DozenSecondTime = 5;
-            SecondTime = 9;
-         }
-         else
-         {
-            DozenMinuteTime--;
-         }
-      }
-      else
-      {
-         MinuteTime--;
-      }
-      GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
-      AddSecondsButton.AddInteractionPunch();
-      UpdateDisplay();
    }
    
    IEnumerator StrikeToExplode() {
@@ -723,7 +749,7 @@ public class MultiverseSynchronization : MonoBehaviour {
       {
          while (true)
          {
-            yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(2f);
             Strike();
          }
       }
@@ -863,8 +889,8 @@ public class MultiverseSynchronization : MonoBehaviour {
                         }
                         if (Timestamps[1] == "1")
                         {
-                           Audio.PlaySoundAtTransform("Count00", transform);
                            ZeroSecondsLeft = true;
+                           Audio.PlaySoundAtTransform("Count00", transform);
                         }
                      }
                   }
@@ -924,8 +950,8 @@ public class MultiverseSynchronization : MonoBehaviour {
                         }
                         if (Timestamps[1] == "1")
                         {
-                           Audio.PlaySoundAtTransform("Count00", transform);
                            ZeroSecondsLeft = true;
+                           Audio.PlaySoundAtTransform("Count00", transform);
                         }
                      }
                   }
@@ -980,7 +1006,43 @@ public class MultiverseSynchronization : MonoBehaviour {
             UpdateDisplay();
          }
       }
+      Debug.LogFormat("[Multiverse Synchronization #{0}] Countdown reached 00:00!", ModuleId);
       StopTimer = true;
+      ZeroSecondsLeft = true;
+
+      if (ValidStartingAtoM)
+      { 
+         if ((Bomb.GetSolvedModuleNames().Count() - CorrectSolveAmount) == 1)
+         {
+            List<string> solvedmodulelist = new List<string>(Bomb.GetSolvedModuleNames());
+            foreach (string module in AllSolvedModules)
+            {
+               if (Bomb.GetSolvedModuleNames().Contains(module))
+               {
+                  Debug.LogFormat("[Multiverse Synchronization #{0}] module = {1}", ModuleId, module);
+                  solvedmodulelist.Remove(module);
+               }
+            } 
+            ModuleThatWasJustSolved = solvedmodulelist[0];
+            Debug.LogFormat("[Multiverse Synchronization #{0}] Just solved module: {1}, First letter: {2}", ModuleId, ModuleThatWasJustSolved, ModuleThatWasJustSolved[0]);
+            
+            if (CorrectModuleToSolve == "##firstHalf")
+            {
+               if (char.ToUpper(ModuleThatWasJustSolved[0]) >= 'A' && char.ToUpper(ModuleThatWasJustSolved[0]) <= 'M')
+               {
+                  AllowedToSolve = true;
+               }
+            }
+            if (CorrectModuleToSolve == "##secondHalf")
+            {
+               if (char.ToUpper(ModuleThatWasJustSolved[0]) >= 'N' && char.ToUpper(ModuleThatWasJustSolved[0]) <= 'Z')
+               {
+                  AllowedToSolve = true;
+               }
+            }
+         }
+      }
+
       if (AllowedToSolve)
       {
          Solve();
@@ -1004,7 +1066,7 @@ public class MultiverseSynchronization : MonoBehaviour {
          FailedToSolve++;
          if (FailedToSolve >= 3)
          {
-            StrikeToExplode();
+            StartCoroutine(StrikeToExplode());
             Debug.LogFormat("[Multiverse Synchronization #{0}] Exploding! Failed to sync multiverse 3 times.", ModuleId);
          }
          else
@@ -1058,7 +1120,7 @@ public class MultiverseSynchronization : MonoBehaviour {
 
    void Update () { //Shit that happens at any point after initialization,
       // CHECK STRIKE COUNT FOR RECALC
-      if (CurrentStrikes != Bomb.GetStrikes())
+      if (CurrentStrikes != Bomb.GetStrikes() && !Kaboosh)
       {
          Debug.LogFormat("[Multiverse Synchronization #{0}] A strike was caused by a module on the bomb. Recalculating multiverse collapse...", ModuleId);
          CurrentStrikes = Bomb.GetStrikes();
@@ -1074,39 +1136,11 @@ public class MultiverseSynchronization : MonoBehaviour {
       // STEP 1 - EXPLODE IF OVERFLOW OF SOLVED MODULES
       if (Bomb.GetSolvedModuleNames().Count() > CorrectSolveAmount && Kaboosh == false && ModuleSolved == false && AllowedToSolve == false)
       {
-         if (ValidStartingAtoM && ZeroSecondsLeft)
+         if (Kaboosh == false && ZeroSecondsLeft == false)
          {
-            foreach (string module in AllSolvedModules)
-            {
-               if (!Bomb.GetSolvedModuleNames().Contains(module))
-               {
-                  ModuleThatWasJustSolved = module;
-                  break;
-               }
-            }
-            if (CorrectModuleToSolve == "##firstHalf")
-            {
-               if (ModuleThatWasJustSolved.Length > 0 && char.ToUpper(ModuleThatWasJustSolved[0]) >= 'A' && char.ToUpper(ModuleThatWasJustSolved[0]) <= 'M')
-               {
-                  AllowedToSolve = true;
-               }
-            }
-            if (CorrectModuleToSolve == "##secondHalf")
-            {
-               if (ModuleThatWasJustSolved.Length > 0 && char.ToUpper(ModuleThatWasJustSolved[0]) >= 'N' && char.ToUpper(ModuleThatWasJustSolved[0]) <= 'Z')
-               {
-                  AllowedToSolve = true;
-               }
-            }
-         }
-         else
-         {
-            StartCoroutine(StrikeToExplode());
-            if (Kaboosh == false)
-            {
-               Debug.LogFormat("[Multiverse Synchronization #{0}] Exploding! Defuser did not asked to sync at {1} solves and has passed that number!", ModuleId, CorrectSolveAmount);
-            }
             Kaboosh = true;
+            StartCoroutine(StrikeToExplode());
+            Debug.LogFormat("[Multiverse Synchronization #{0}] Exploding! Defuser solved more than {1} modules!", ModuleId, CorrectSolveAmount);
          }
       }
 
@@ -1119,17 +1153,19 @@ public class MultiverseSynchronization : MonoBehaviour {
          }
          else
          {
-            StartCoroutine(StrikeToExplode());
             if (Kaboosh == false)
             {
-               Debug.LogFormat("[Multiverse Synchronization #{0}] Exploding! Defused solved {1} earlier than needed.", ModuleId, CorrectModuleToSolve);
+               Kaboosh = true;
+               StartCoroutine(StrikeToExplode());
+               Debug.LogFormat("[Multiverse Synchronization #{0}] Exploding! Defuser solved {1} earlier than needed.", ModuleId, CorrectModuleToSolve);
             }  
-            Kaboosh = true;
          }
       }
 
-      AllSolvedModules = Bomb.GetSolvedModuleNames();
-
+      if (!ZeroSecondsLeft)
+      {
+         AllSolvedModules = Bomb.GetSolvedModuleNames();
+      }
    }
 
    void Solve () {
