@@ -492,7 +492,7 @@ GameObject:
   - component: {fileID: 114139553842080666}
   - component: {fileID: 114465471003117466}
   m_Layer: 0
-  m_Name: Multiverse Syncronization
+  m_Name: Multiverse Synchronization
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2125,17 +2125,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Parent: {fileID: 114139553842080666}
   Children:
-  - {fileID: 0}
   - {fileID: 114830398948056142}
   - {fileID: 114778395902597834}
   - {fileID: 114610906549683952}
-  - {fileID: 0}
   - {fileID: 114107939422994446}
   - {fileID: 114508867054243254}
   - {fileID: 114311533680903710}
   - {fileID: 114676388928128544}
   IsPassThrough: 0
-  ChildRowLength: 0
+  ChildRowLength: 7
   Highlight: {fileID: 114570430299588062}
   SelectableColliders: []
   DefaultSelectableIndex: 0

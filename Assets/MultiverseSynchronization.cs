@@ -409,7 +409,7 @@ public class MultiverseSynchronization : MonoBehaviour {
          TimestampSeconds += 720;
          AppliedRulesS2 += "20, ";
       }
-      
+
       TimestampMinutes = TimestampSeconds / 60;
       TimestampSeconds = TimestampSeconds % 60;
 
@@ -1188,14 +1188,45 @@ public class MultiverseSynchronization : MonoBehaviour {
    }
 
 #pragma warning disable 414
-   private readonly string TwitchHelpMessage = @"Use !{0} to do something.";
+   private readonly string TwitchHelpMessage = @"Use [!{0} sync <##:##>] to start the timer at the specified timestamp.";
 #pragma warning restore 414
 
    IEnumerator ProcessTwitchCommand (string Command) {
+
+      Command = Command.ToLowerInvariant().Trim();
+
+      Match match = Regex.Match(Command, @"^sync\s+([0-9]{2}):([0-5][0-9])$");
+      if (!match.Success)
+      {
+         yield break;
+      }
+            
+      int T_TimestampDozenMinutes = int.Parse(match.Groups[1].Value[0].ToString());
+      int T_TimestampMinutes = int.Parse(match.Groups[1].Value[1].ToString());
+      int T_TimestampDozenSeconds = int.Parse(match.Groups[2].Value[0].ToString());
+      int T_TimestampSeconds = int.Parse(match.Groups[2].Value[1].ToString());
+
+      DozenMinuteTime = T_TimestampDozenMinutes;
+      MinuteTime = T_TimestampMinutes;
+      DozenSecondTime = T_TimestampDozenSeconds;
+      SecondTime = T_TimestampSeconds;
+      UpdateDisplay();
+      GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
+      SyncButtonPress();
+      GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
+
       yield return null;
    }
 
    IEnumerator TwitchHandleForcedSolve () {
+
+      DozenMinuteTime = 0;
+      MinuteTime = 0;
+      DozenSecondTime = 0;
+      SecondTime = 0;
+      Debug.LogFormat("[Multiverse Synchronization #{0}] Twitch Team got too lazy or busy and can't solve the multiverse?! Forcing a multiverse switch!!!", ModuleId);
+      Solve();
+
       yield return null;
    }
 }
