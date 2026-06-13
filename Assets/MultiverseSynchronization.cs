@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using KModkit;
 using Rnd = UnityEngine.Random;
-using Math = ExMath;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
 public class MultiverseSynchronization : MonoBehaviour {
@@ -52,11 +51,13 @@ public class MultiverseSynchronization : MonoBehaviour {
    int IndicatorsAndBatteries;
    int AlphanumericSNLetters;
    int BombTotalTime;
-   int CurrentStrikes;
    int SNDigitSum;
+   int PortPlateCount;
    string SolveKeyPartTwo = "";
    int CorrectSolveAmount;
    bool LessThan11Modules = false;
+
+   bool LessThan3Modules = false;
 
    int rowT1;
    int columnT1;
@@ -82,41 +83,41 @@ public class MultiverseSynchronization : MonoBehaviour {
    string[][] TableStep3Modules = new string[][]
    {
       "Listening, Unordered Keys, Plumbing, Safety Safe, Misordered Keys, Piano Keys, Keypad".Split(new string[] { ", " }, StringSplitOptions.None),
-      "T-Words, Word Scramble, Anagrams, Recorded Keys, Simon States, Round Keypad, Morse Code".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Bordered Keys, Follow The Leader, Blind Alley, Hexamaze, Battleship, LED Encryption, Who’s on First".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Sink, Morse-a-Maze, Algebra, Color Flash, Turn The Keys, 3D Maze, Simon Says".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Mastermind Cruel, Extended Password, Human Resourses, Poker, Mashematics, Skyrim, Keypad".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Cruel Piano Keys, Button Sequence, Game of LIfe Cruel, Mortal Kombat, Poetry, Mafia, Keypad".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Led Grid, Polyhedral Maze, Symbolic Coordinates, Faulty Backgrounds, Radiator, Colored Switches, Memory".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Identity Parade, Visual Impairment, The Swan, The Iphone, X-ray, Waste Management, Who’s on First".Split(new string[] { ", " }, StringSplitOptions.None),
+      "T-Words, Word Scramble, Anagrams, Recorded Keys, Wire Placement, Round Keypad, Morse Code".Split(new string[] { ", " }, StringSplitOptions.None),
+      "Bordered Keys, Follow The Leader, Blind Alley, Hexamaze, Battleship, LED Encryption, Who's on First".Split(new string[] { ", " }, StringSplitOptions.None),
+      "Sink, Morse-A-Maze, Algebra, Combination Lock, Cryptography, 3D Maze, Maze".Split(new string[] { ", " }, StringSplitOptions.None),
+      "Mastermind Cruel, Extended Password, Human Resources, Poker, Mashematics, Skyrim, Keypad".Split(new string[] { ", " }, StringSplitOptions.None),
+      "Cruel Piano Keys, Button Sequence, Game of Life Cruel, Mortal Kombat, Poetry, Mafia, Keypad".Split(new string[] { ", " }, StringSplitOptions.None),
+      "LED Grid, Polyhedral Maze, Symbolic Coordinates, Faulty Backgrounds, Radiator, Colored Switches, Memory".Split(new string[] { ", " }, StringSplitOptions.None),
+      "Identity Parade, Visual Impairment, Adventure Game, The iPhone, X-Ray, Waste Management, Who's on First".Split(new string[] { ", " }, StringSplitOptions.None),
       "Maintenance, Color Generator, S.E.T., Painting, Monsplode Trading Cards, Flags, Morse Code".Split(new string[] { ", " }, StringSplitOptions.None),
       "Curriculum, Braille, Gridlock, Blind Maze, The Jukebox, Perplexing Wires, Wire Sequence".Split(new string[] { ", " }, StringSplitOptions.None),
       "Symbol Cycle, Modern Cipher, Timezone, Color Morse, Sonic the Hedgehog, Nonogram, Wires".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Alphabet, The Screw, Mastermind Simple, Game of Life Simple, Hunting, Big Circle, Complicated Wires".Split(new string[] { ", " }, StringSplitOptions.None),
+      "Alphabet, The Screw, Mastermind Simple, Game of Life Simple, Hunting, Follow the Leader, Complicated Wires".Split(new string[] { ", " }, StringSplitOptions.None),
       "Reordered Keys, Connection Check, Bitwise Operations, Chord Qualities, Minesweeper, Letter Keys, Maze".Split(new string[] { ", " }, StringSplitOptions.None),
       "Perspective Pegs, Mystic Square, Adjacent Letters, Text Field, Microcontroller, Only Connect, Password".Split(new string[] { ", " }, StringSplitOptions.None),
       "Shape Shift, English Test, Cheap Checkout, Ordered Keys, Creation, The Clock, Wires".Split(new string[] { ", " }, StringSplitOptions.None),
-      "101 Dalmatians, Zoo, Point of Order, Switches, Orientation Cube, Astrology, Keypad".Split(new string[] { ", " }, StringSplitOptions.None),
+      "101 Dalmatians, Algebra, Point of Order, Switches, Orientation Cube, Astrology, Keypad".Split(new string[] { ", " }, StringSplitOptions.None),
       "Crazy Talk, Chord Progressions, Resistors, Friendship, Colored Squares, FizzBuzz, Keypad".Split(new string[] { ", " }, StringSplitOptions.None),
-      "The Bulb, Wire Placement, Color Math, Web Design, Boolean Venn Diagram, Ice Cream, Simon Says".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Sea Shells, Translated Morse Code, Translated Password, Semaphore, Combination Lock, Tic Tac Toe, Memory".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Binary LEDs, Translated Who’s On First, Simon Screams, Modules Against Humanity, Complicated Buttons, Symbolic Password, Who’s on First".Split(new string[] { ", " }, StringSplitOptions.None),
-      "The Gamepad, Monsplode Fight!, Sea Shells, Rock Paper Scissors Lizard Spock, Coordinates, Rubiks Cube, Morse Code".Split(new string[] { ", " }, StringSplitOptions.None),
+      "The Bulb, Wire Placement, Color Math, Web Design, Boolean Venn Diagram, Ice Cream, Maze".Split(new string[] { ", " }, StringSplitOptions.None),
+      "Sea Shells, Morse Code Translated , Passwords Translated , Semaphore, Combination Lock, Tic Tac Toe, Memory".Split(new string[] { ", " }, StringSplitOptions.None),
+      "Extended Password, Who's on First Translated  LED Encryption, Modules Against Humanity, Complicated Buttons, Symbolic Password, Who's on First".Split(new string[] { ", " }, StringSplitOptions.None),
+      "The Gamepad, Monsplode, Fight! , Sea Shells, Rock-Paper-Scissors-Lizard-Spock , Coordinates, Rubik's Cube, Morse Code".Split(new string[] { ", " }, StringSplitOptions.None),
       "Broken Buttons, Double-Oh, Neutralization, Emoji Math, Mouse In The Maze, Number Pad, Complicated Wires".Split(new string[] { ", " }, StringSplitOptions.None),
       "Laundry, Logic, Cryptography, Caesar Cipher, Bitmaps, Word Search, Wire Sequence".Split(new string[] { ", " }, StringSplitOptions.None),
       "Two Bits, Foreign Exchange Rates, Adventure Game, Chess, Murder, Third Base, Complicated Wires".Split(new string[] { ", " }, StringSplitOptions.None),
       "Listening, Unordered Keys, Plumbing, Safety Safe, Misordered Keys, Piano Keys, Password".Split(new string[] { ", " }, StringSplitOptions.None),
-      "T-Words, Word Scramble, Anagrams, Recorded Keys, Simon States, Round Keypad, Maze".Split(new string[] { ", " }, StringSplitOptions.None),
+      "T-Words, Word Scramble, Anagrams, Recorded Keys, Wire Placement, Round Keypad, Maze".Split(new string[] { ", " }, StringSplitOptions.None),
       "Bordered Keys, Follow The Leader, Blind Alley, Hexamaze, Battleship, LED Encryption, Password".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Sink, Morse-a-Maze, Algebra, Color Flash, 3D Tunnels, 3D Maze, Wire Sequence".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Mastermind Cruel, Extended Password, Human Resourses, Poker, Mashematics, Skyrim, Complicated Wires".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Cruel Piano Keys, Button Sequence, Game of LIfe Cruel, Mortal Kombat, Poetry, Mafia, Morse Code".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Led Grid, Polyhedral Maze, Symbolic Coordinates, Faulty Backgrounds, Radiator, Colored Switches, Memory".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Identity Parade, Visual Impairment, The Swan, The Iphone, X-ray, Waste Management, Who’s on First".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Maintenance, Color Generator, S.E.T., Painting, Monsplode Trading Cards, Flags, Simon Says".Split(new string[] { ", " }, StringSplitOptions.None),
+      "Sink, Morse-A-Maze, Algebra, Combination Lock, 3D Tunnels, 3D Maze, Wire Sequence".Split(new string[] { ", " }, StringSplitOptions.None),
+      "Mastermind Cruel, Extended Password, Human Resources, Poker, Mashematics, Skyrim, Complicated Wires".Split(new string[] { ", " }, StringSplitOptions.None),
+      "Cruel Piano Keys, Button Sequence, Game of Life Cruel, Mortal Kombat, Poetry, Mafia, Morse Code".Split(new string[] { ", " }, StringSplitOptions.None),
+      "LED Grid, Polyhedral Maze, Symbolic Coordinates, Faulty Backgrounds, Radiator, Colored Switches, Memory".Split(new string[] { ", " }, StringSplitOptions.None),
+      "Identity Parade, Visual Impairment, Adventure Game, The iPhone, X-Ray, Waste Management, Who's on First".Split(new string[] { ", " }, StringSplitOptions.None),
+      "Maintenance, Color Generator, S.E.T., Painting, Monsplode Trading Cards, Flags, Maze".Split(new string[] { ", " }, StringSplitOptions.None),
       "Curriculum, Braille, Gridlock, Blind Maze, The Jukebox, Perplexing Wires, Keypad".Split(new string[] { ", " }, StringSplitOptions.None),
       "Symbol Cycle, Modern Cipher, Timezone, Color Morse, Sonic the Hedgehog, Nonogram, Keypad".Split(new string[] { ", " }, StringSplitOptions.None),
-      "Backgrounds, Festive Piano Keys, Mastermind Simple, Game of Life Simple, Hunting, Big Circle, Wires".Split(new string[] { ", " }, StringSplitOptions.None)
+      "Backgrounds, Festive Piano Keys, Mastermind Simple, Game of Life Simple, Hunting, Follow the Leader, Wires".Split(new string[] { ", " }, StringSplitOptions.None)
    };
    List<int> SNLookupList = new List<int>() {4, 3, 6, 1, 5, 2, 4, 6, 1, 4, 3, 6, 1, 2, 4, 5};
    int LookupSNDigit;
@@ -124,8 +125,124 @@ public class MultiverseSynchronization : MonoBehaviour {
    char SNCharacterLookup;
    int Table3LookupDigit;
    string CorrectModuleToSolve = "[none]";
-   List<string> IgnoringModulesList = new List<string>() {"Multiverse Synchronization"};
+
+   List<string> IgnoringModulesList = new List<string>() {
+    "Forget Me Not",
+    "Souvenir",
+    "Forget Everything",
+    "Simon's Stages",
+    "Forget This",
+    "Purgatory",
+    "The Troll",
+    "Forget Them All",
+    "Tallordered Keys",
+    "Forget Enigma",
+    "Forget Us Not",
+    "Forget Perspective",
+    "Organization",
+    "The Very Annoying Button",
+    "Forget Me Later",
+    "Übermodule",
+    "Ultimate Custom Night",
+    "14",
+    "Forget It Not",
+    "Simon Forgets",
+    "Brainf---",
+    "Forget The Colors",
+    "RPS Judging",
+    "The Twin",
+    "Iconic",
+    "OmegaForget",
+    "Kugelblitz",
+    "A>N<D",
+    "Don't Touch Anything",
+    "Busy Beaver",
+    "Whiteout",
+    "Forget Any Color",
+    "Keypad Directionality",
+    "Security Council",
+    "Shoddy Chess",
+    "Floor Lights",
+    "Black Arrows",
+    "Forget Maze Not",
+    "+",
+    "Soulscream",
+    "Cube Synchronization",
+    "Out of Time",
+    "Tetrahedron",
+    "The Board Walk",
+    "Gemory",
+    "Duck Konundrum",
+    "Concentration",
+    "Twister",
+    "Forget Our Voices",
+    "Soulsong",
+    "ID Exchange",
+    "8",
+    "Remember Simple",
+    "Remembern't Simple",
+    "The Grand Prix",
+    "Forget Me Maybe",
+    "HyperForget",
+    "Bitwise Oblivion",
+    "Damocles Lumber",
+    "Top 10 Numbers",
+    "Queen's War",
+    "Forget Fractal",
+    "Pointer Pointer",
+    "Slight Gibberish Twist",
+    "Piano Paradox",
+    "OMISSION",
+    "In Order",
+    "The Nobody's Code",
+    "Perspective Stacking",
+    "Reporting Anomalies",
+    "Forgetle",
+    "Actions and Consequences",
+    "FizzBoss",
+    "Watch the Clock",
+    "Blackout",
+    "Hickory Dickory Dock",
+    "Temporal Sequence",
+    "Sbemail Songs",
+    "Spectator Sport",
+    "Needy Survival",
+    "Limbo Keys",
+    "Clearance Code",
+    "Smash, Marry, Kill",
+    "Forgetful Grid",
+    "Marmite",
+    "WAR",
+    "Numerical Nightmare",
+    "Forget Me No.",
+    "Relic Song",
+    "Cranky's Sections",
+    "Forgor Me Not",
+    "X",
+    "Y",
+    "Castor",
+    "Pollux",
+    "Apple Pen",
+    "Pineapple Pen",
+    "Tyler Verifies",
+    "Multiverse Synchronization",
+    "Turn The Key",
+    "The Time Keeper",
+    "Timing is Everything",
+    "Bamboozling Time Keeper",
+    "Password Destroyer",
+    "OmegaDestroyer",
+    "Zener Cards",
+    "Doomsday Button",
+    "Red Light Green Light",
+    "Again",
+    "Crazy?",
+    "Falsifying Info",
+    "Minsk Metro",
+    "n-Time"
+   };
    List<string> AllSolvedModules = new List<string>();
+   List<string> AllNonSolvedModules = new List<string>();
    bool hasValidModule = false;
    bool ValidStartingAtoM = false;
 
@@ -171,7 +288,6 @@ public class MultiverseSynchronization : MonoBehaviour {
 
    bool AllowedToSolve = false;
    bool ZeroSecondsLeft = false;
-   bool AMinuteLeft = false;
    string ModuleThatWasJustSolved;
    int FailedToSolve = 0;
    string FormattedTime = "";
@@ -198,12 +314,19 @@ public class MultiverseSynchronization : MonoBehaviour {
 
    void Step1Solving() {
       SerialNumber = Bomb.GetSerialNumber();
-      ModuleCount = Bomb.GetModuleNames().Count();
+      ModuleCount = Bomb.GetModuleNames().Except(IgnoringModulesList).Count();
 
       if (ModuleCount <= 11)
       {
-         CorrectSolveAmount = ModuleCount / 2;
-         LessThan11Modules = true;
+         if (ModuleCount <= 3)
+         {
+            LessThan3Modules = true;
+         }
+         else
+         {
+            CorrectSolveAmount = ModuleCount / 2;
+            LessThan11Modules = true;
+         }
       }
 
       IndicatorsAndBatteries = Bomb.GetIndicators().Count<string>() + Bomb.GetBatteryCount();
@@ -220,17 +343,19 @@ public class MultiverseSynchronization : MonoBehaviour {
 
       SNDigitSum = SerialNumber.Where(char.IsDigit).Sum(c => c - '0');
 
-      Debug.LogFormat("[Multiverse Synchronization #{0}] Step 1 Unconverted digits: {1} modules, {2} indicators + batteries, {3} alphanumeric letter sum, {4} seconds on bomb, {5} strikes, {6} SN digits sum", ModuleId, ModuleCount, IndicatorsAndBatteries, AlphanumericSNLetters, BombTotalTime, CurrentStrikes, SNDigitSum);
+      PortPlateCount = Bomb.GetPortPlateCount();
+
+      Debug.LogFormat("[Multiverse Synchronization #{0}] Step 1 Unconverted digits: {1} modules, {2} indicators + batteries, {3} alphanumeric letter sum, {4} seconds on bomb, {5} strikes, {6} SN digits sum", ModuleId, ModuleCount, IndicatorsAndBatteries, AlphanumericSNLetters, BombTotalTime, PortPlateCount, SNDigitSum);
    
       SolveKeyPartTwo = "";
       SolveKeyPartTwo = SolveKeyPartTwo + (char)('A' + ((ModuleCount % 26) + 1) - 1);
       SolveKeyPartTwo = SolveKeyPartTwo + (char)('A' + ((IndicatorsAndBatteries % 26) + 1) - 1);
       SolveKeyPartTwo = SolveKeyPartTwo + (char)('A' + ((AlphanumericSNLetters % 26) + 1) - 1);
       SolveKeyPartTwo = SolveKeyPartTwo + (char)('A' + ((BombTotalTime % 26) + 1) - 1);
-      SolveKeyPartTwo = SolveKeyPartTwo + (char)('A' + ((CurrentStrikes % 26) + 1) - 1);
+      SolveKeyPartTwo = SolveKeyPartTwo + (char)('A' + ((PortPlateCount % 26) + 1) - 1);
       SolveKeyPartTwo = SolveKeyPartTwo + (char)('A' + ((SNDigitSum % 26) + 1) - 1);
 
-      Debug.LogFormat("[Multiverse Synchronization #{0}] Step 1 Second Part of Solve key: {1}", ModuleId, SolveKeyPartTwo);
+      Debug.LogFormat("[Multiverse Synchronization #{0}] Step 1 - Second Part of Solve key: {1}", ModuleId, SolveKeyPartTwo);
 
       //Solve Key Solving
       SolveKeyString = "";
@@ -257,22 +382,17 @@ public class MultiverseSynchronization : MonoBehaviour {
       Debug.LogFormat("[Multiverse Synchronization #{0}] Solve Key: {1}", ModuleId, SolveKeyString);
 
       SolveKey = int.Parse(SolveKeyString);
-      if (LessThan11Modules)
+      if (LessThan3Modules)
+      {
+         Debug.LogFormat("[Multiverse Synchronization #{0}] Bomb has <= 3 modules. Solve anytime with the correct timestamp.", ModuleId);
+      }
+      else if (LessThan11Modules)
       {
          Debug.LogFormat("[Multiverse Synchronization #{0}] Bomb has <= 11 modules. Correct Count of Solved Modules: {1}", ModuleId, CorrectSolveAmount);
       }
       else
       {
          CorrectSolveAmount = SolveKey % (ModuleCount - 7);
-
-         if (Bomb.GetSolvedModuleNames().Count() > CorrectSolveAmount)
-         {
-            while (Bomb.GetSolvedModuleNames().Count() > CorrectSolveAmount)
-            {
-               CorrectSolveAmount += 4;
-            }
-         }
-
          Debug.LogFormat("[Multiverse Synchronization #{0}] Correct Count of Solved Modules: {1}", ModuleId, CorrectSolveAmount);
       }    
    }
@@ -418,58 +538,65 @@ public class MultiverseSynchronization : MonoBehaviour {
    }
 
    void Step3Solving() {
-      LookupSNDTableDigit = SolveKey % 16;
-      LookupSNDigit = SNLookupList[LookupSNDTableDigit];
-      SNCharacterLookup = SerialNumber[LookupSNDigit-1];
-      Debug.LogFormat("[Multiverse Synchronization #{0}] Step 3: Solve Key modulo 16 is {1}, so looking up {2}º digit, which is {3}.", ModuleId, LookupSNDTableDigit, LookupSNDigit, SNCharacterLookup);
-
-      if (char.IsLetter(SNCharacterLookup))
+      if (LessThan3Modules)
       {
-         Table3LookupDigit = (SNCharacterLookup - 'A' + 1) - 1;
+         Debug.LogFormat("[Multiverse Synchronization #{0}] Step 3 is irrelevant, since bomb has <= 3 modules.", ModuleId);
       }
       else
       {
-         Table3LookupDigit = SNCharacterLookup - '0' + 26;
-      }
+         LookupSNDTableDigit = SolveKey % 16;
+         LookupSNDigit = SNLookupList[LookupSNDTableDigit];
+         SNCharacterLookup = SerialNumber[LookupSNDigit-1];
+         Debug.LogFormat("[Multiverse Synchronization #{0}] Step 3: Solve Key modulo 16 is {1}, so looking up {2}º digit, which is {3}.", ModuleId, LookupSNDTableDigit, LookupSNDigit, SNCharacterLookup);
 
-      hasValidModule = false;
-      foreach (string module in TableStep3Modules[Table3LookupDigit])
-      {
-         if (Bomb.GetSolvableModuleNames().Contains(module))
+         if (char.IsLetter(SNCharacterLookup))
          {
-            if (IgnoringModulesList.Contains(module))
-            {
-               continue;
-            }
-            else
-            {
-               hasValidModule = true;
-               CorrectModuleToSolve = module;
-               Debug.LogFormat("[Multiverse Synchronization #{0}] Step 3 - Bomb has a valid module: {1}", ModuleId,  CorrectModuleToSolve);
-               break;
-            }
+            Table3LookupDigit = (SNCharacterLookup - 'A' + 1) - 1;
          }
-      }
+         else
+         {
+            Table3LookupDigit = SNCharacterLookup - '0' + 26;
+         }
 
-      ValidStartingAtoM = false;
-      if (!hasValidModule)
-      {
-         foreach (string module in Bomb.GetSolvableModuleNames())
+         hasValidModule = false;
+         foreach (string module in TableStep3Modules[Table3LookupDigit])
          {
-            if (module.Length > 0 && char.ToUpper(module[0]) >= 'A' && char.ToUpper(module[0]) <= 'M' && module != "Multiverse Synchronization")
+            if (Bomb.GetSolvableModuleNames().Contains(module))
             {
-               Debug.LogFormat("[Multiverse Synchronization #{0}] Step 3 - Bomb doesn't has a valid module, but has module(s) starting with the first half of the alphabet.", ModuleId);
-               CorrectModuleToSolve = "##firstHalf";
-               ValidStartingAtoM = true;
-               break;
+               if (IgnoringModulesList.Contains(module))
+               {
+                  continue;
+               }
+               else
+               {
+                  hasValidModule = true;
+                  CorrectModuleToSolve = module;
+                  Debug.LogFormat("[Multiverse Synchronization #{0}] Step 3 - Bomb has a valid module: {1}", ModuleId,  CorrectModuleToSolve);
+                  break;
+               }
             }
          }
-         if (!ValidStartingAtoM)
+
+         ValidStartingAtoM = false;
+         if (!hasValidModule)
          {
-            CorrectModuleToSolve = "##secondHalf";
-            Debug.LogFormat("[Multiverse Synchronization #{0}] Step 3 - Bomb doesn't has a valid module or module(s) starting with the first half of the alphabet. Any module on the second half of the alphabet is correct.", ModuleId);
+            foreach (string module in Bomb.GetSolvableModuleNames())
+            {
+               if (module.Length > 0 && char.ToUpper(module[0]) >= 'A' && char.ToUpper(module[0]) <= 'M' && module != "Multiverse Synchronization")
+               {
+                  Debug.LogFormat("[Multiverse Synchronization #{0}] Step 3 - Bomb doesn't has a valid module, but has module(s) starting with the first half of the alphabet.", ModuleId);
+                  CorrectModuleToSolve = "##firstHalf";
+                  ValidStartingAtoM = true;
+                  break;
+               }
+            }
+            if (!ValidStartingAtoM)
+            {
+               CorrectModuleToSolve = "##secondHalf";
+               Debug.LogFormat("[Multiverse Synchronization #{0}] Step 3 - Bomb doesn't has a valid module or module(s) starting with the first half of the alphabet. Any module on the second half of the alphabet is correct.", ModuleId);
+            }
+            ValidStartingAtoM = true;
          }
-         ValidStartingAtoM = true;
       }
    }
 
@@ -501,12 +628,19 @@ public class MultiverseSynchronization : MonoBehaviour {
          {
             if (FormattedCorrectTime == FormattedTime)
             {
-               StartCoroutine(Countdown());
-               Debug.LogFormat("[Multiverse Synchronization #{0}] Defuser asked to sync multiverse at {1}{2}:{3}{4}, which is correct. Starting countdown...", ModuleId, DozenMinuteTime, MinuteTime, DozenSecondTime, SecondTime);
-               Audio.PlaySoundAtTransform("TimerStart", transform);
-               TimerRunning = true;
-               StopTimer = false;
-               AllSolvedModules = Bomb.GetSolvedModuleNames();
+               if (LessThan3Modules)
+               {
+                  Solve();
+               }
+               else
+               {
+                  StartCoroutine(Countdown());
+                  Debug.LogFormat("[Multiverse Synchronization #{0}] Defuser asked to sync multiverse at {1}{2}:{3}{4}, which is correct. Starting countdown...", ModuleId, DozenMinuteTime, MinuteTime, DozenSecondTime, SecondTime);
+                  Audio.PlaySoundAtTransform("TimerStart", transform);
+                  TimerRunning = true;
+                  StopTimer = false;
+                  AllSolvedModules = Bomb.GetSolvedModuleNames();
+               }
             }
             else
             {
@@ -809,7 +943,6 @@ public class MultiverseSynchronization : MonoBehaviour {
             SecondTime = 0;
             StartCoroutine(LastDigitDancing());
             UpdateDisplay();
-            AMinuteLeft = true;
             Audio.PlaySoundAtTransform("OneMinuteLeft", transform);
             Audio.PlaySoundAtTransform("TickingSound", transform);
             DozenMinutesDisplay.color = new Color32(255, 113, 0, 255);
@@ -1019,7 +1152,7 @@ public class MultiverseSynchronization : MonoBehaviour {
             {
                if (Bomb.GetSolvedModuleNames().Contains(module))
                {
-                  Debug.LogFormat("[Multiverse Synchronization #{0}] module = {1}", ModuleId, module);
+                  Debug.LogFormat("[Multiverse Synchronization #{0}] Module = {1}", ModuleId, module);
                   solvedmodulelist.Remove(module);
                }
             } 
@@ -1119,22 +1252,21 @@ public class MultiverseSynchronization : MonoBehaviour {
    }
 
    void Update () { //Shit that happens at any point after initialization,
-      // CHECK STRIKE COUNT FOR RECALC
-      if (CurrentStrikes != Bomb.GetStrikes() && !Kaboosh)
+
+      AllNonSolvedModules = Bomb.GetSolvableModuleNames();
+      foreach (var module in Bomb.GetSolvedModuleNames())
       {
-         Debug.LogFormat("[Multiverse Synchronization #{0}] A strike was caused by a module on the bomb. Recalculating multiverse collapse...", ModuleId);
-         CurrentStrikes = Bomb.GetStrikes();
-         Step1Solving();
-         Step2Solving();
-         Step3Solving();
+         AllNonSolvedModules.Remove(module);
       }
-      else
+
+      // SOLVE MODULE IF ANOTHER MSYNC HAS BEEN SOLVED
+      if (Bomb.GetSolvedModuleNames().Contains("Multiverse Synchronization"))
       {
-         CurrentStrikes = Bomb.GetStrikes();
+         SolveFORCED();
       }
 
       // STEP 1 - EXPLODE IF OVERFLOW OF SOLVED MODULES
-      if (Bomb.GetSolvedModuleNames().Count() > CorrectSolveAmount && Kaboosh == false && ModuleSolved == false && AllowedToSolve == false)
+      if (Bomb.GetSolvedModuleNames().Except(IgnoringModulesList).Count() > CorrectSolveAmount && Kaboosh == false && ModuleSolved == false && AllowedToSolve == false)
       {
          if (Kaboosh == false && ZeroSecondsLeft == false)
          {
@@ -1144,8 +1276,8 @@ public class MultiverseSynchronization : MonoBehaviour {
          }
       }
 
-      // STEP 3 - EXPLODE IF MODULE SOLVED EARLY
-      if (Bomb.GetSolvedModuleNames().Contains(CorrectModuleToSolve) && ModuleSolved == false)
+      // STEP 3 - EXPLODE IF MODULE SOLVED EARLY or solve it if it was on time :3
+      if (AllNonSolvedModules.Contains(CorrectModuleToSolve) == false && ModuleSolved == false && CorrectModuleToSolve != "[none]" && CorrectModuleToSolve != "##firstHalf" && CorrectModuleToSolve != "##secondHalf")
       {
          if (ZeroSecondsLeft == true)
          {
@@ -1177,6 +1309,17 @@ public class MultiverseSynchronization : MonoBehaviour {
       DivisorDisplay.color = new Color32(0, 255, 255, 255);
       Debug.LogFormat("[Multiverse Synchronization #{0}] Sucess! The Keep Talking and Nobody Explodes Multiverse has been saved! Module Solved! Good luck on the rest of your bomb. Thank you for your cooperation.", ModuleId);
       Audio.PlaySoundAtTransform("SolvedModule", transform);
+      ModuleSolved = true;
+   }
+
+   void SolveFORCED () {
+      GetComponent<KMBombModule>().HandlePass();
+      DozenMinutesDisplay.color = new Color32(0, 255, 255, 255);
+      MinutesDisplay.color = new Color32(0, 255, 255, 255);
+      DozenSecondDisplay.color = new Color32(0, 255, 255, 255);
+      SecondsDisplay.color = new Color32(0, 255, 255, 255);
+      DivisorDisplay.color = new Color32(0, 255, 255, 255);
+      Debug.LogFormat("[Multiverse Synchronization #{0}] Another Multiverse Synchronization module has been solved, which is good news! Disarming module...", ModuleId);
       ModuleSolved = true;
    }
 
